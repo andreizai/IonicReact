@@ -1,0 +1,7 @@
+{
+  "name": "newsFeedApp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
