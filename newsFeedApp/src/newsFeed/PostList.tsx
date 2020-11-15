@@ -32,15 +32,15 @@ const ItemList: React.FC<RouteComponentProps> = ({ history }) => {
         <IonLoading isOpen={fetching} message="Fetching items"/>
         {items && (
           <IonList>
-            {items.map(({ _id, text }) =>
-              <Post key={_id} _id={_id} text={text} onEdit={id => history.push(`/item/${id}`)}/>)}
+            {items.map(({ _id, text, title, date, edited, version }) =>
+              <Post key={_id} _id={_id} text={text} title={title} date={date} edited={edited} version={version} onEdit={id => history.push(`/post/${id}`)}/>)}
           </IonList>
         )}
         {fetchingError && (
           <div>{fetchingError.message || 'Failed to fetch items'}</div>
         )}
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
-          <IonFabButton onClick={() => history.push('/item')}>
+          <IonFabButton onClick={() => history.push('/post')}>
             <IonIcon icon={add}/>
           </IonFabButton>
         </IonFab>

@@ -244,3 +244,7 @@ http://ionicframework.com/docs/theming/ */
   padding: 0;
   margin-right: 20px;
 }
+
+.card-post {
+  width: 100%;
+}
