@@ -2,7 +2,6 @@ import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import Home from './pages/Home';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -23,12 +22,23 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 
+import { ItemProvider } from './newsFeed/PostProvider';
+import { AuthProvider, Login, PrivateRoute } from './auth';
+import { PostEdit, PostList } from './newsFeed';
+
 const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
       <IonRouterOutlet>
-        <Route path="/home" component={Home} exact={true} />
-        <Route exact path="/" render={() => <Redirect to="/home" />} />
+        <AuthProvider>
+          <Route path="/login" component={Login} exact={true}/>
+          <ItemProvider>
+            <PrivateRoute path="/posts" component={PostList} exact={true}/>
+            <PrivateRoute path="/post" component={PostEdit} exact={true}/>
+            <PrivateRoute path="/post/:id" component={PostEdit} exact={true}/>
+          </ItemProvider>
+          <Route exact path="/" render={() => <Redirect to="/posts"/>}/>
+        </AuthProvider>
       </IonRouterOutlet>
     </IonReactRouter>
   </IonApp>

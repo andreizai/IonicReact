@@ -230,3 +230,17 @@ http://ionicframework.com/docs/theming/ */
     --ion-card-background: #1e1e1e;
   }
 }
+
+.subtitle-card-post {
+  display: inline-flex;
+}
+
+.subtitle-card-post .item-native {
+  padding: 0px;
+}
+
+.subtitle-card-post-date {
+  border: 0;
+  padding: 0;
+  margin-right: 20px;
+}
