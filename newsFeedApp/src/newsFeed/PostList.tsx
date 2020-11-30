@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { RouteComponentProps } from 'react-router';
 import {
+  IonButton,
   IonContent,
   IonFab,
   IonFabButton,
@@ -15,17 +16,25 @@ import { add } from 'ionicons/icons';
 import Post from './Post';
 import { getLogger } from '../core';
 import { ItemContext } from './PostProvider';
+import { AuthContext } from '../auth';
 
 const log = getLogger('ItemList');
 
 const ItemList: React.FC<RouteComponentProps> = ({ history }) => {
   const { items, fetching, fetchingError } = useContext(ItemContext);
+  const { logout } = useContext(AuthContext);
+  const handleLogout = () => {
+    debugger;
+    logout?.();
+  }
   log('render');
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>News Feed</IonTitle>
+          <IonTitle>News Feed
+            <IonButton onClick={handleLogout}>Logout</IonButton>
+          </IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>

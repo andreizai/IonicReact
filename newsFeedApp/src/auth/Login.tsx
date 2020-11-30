@@ -16,8 +16,10 @@ export const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const { isAuthenticated, isAuthenticating, login, authenticationError } = useContext(AuthContext);
   const [state, setState] = useState<LoginState>({});
   const { username, password } = state;
+  debugger;
   const handleLogin = () => {
     log('handleLogin...');
+    debugger;
     login?.(username, password);
   };
   log('render');

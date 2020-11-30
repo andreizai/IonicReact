@@ -7,11 +7,14 @@ const log = getLogger('AuthProvider');
 
 type LoginFn = (username?: string, password?: string) => void;
 
+type LogoutFn = () => void;
+
 export interface AuthState {
   authenticationError: Error | null;
   isAuthenticated: boolean;
   isAuthenticating: boolean;
   login?: LoginFn;
+  logout?: LogoutFn;
   pendingAuthentication?: boolean;
   username?: string;
   password?: string;
@@ -36,14 +39,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, setState] = useState<AuthState>(initialState);
   const { isAuthenticated, isAuthenticating, authenticationError, pendingAuthentication, token } = state;
   const login = useCallback<LoginFn>(loginCallback, []);
+  const logout = useCallback<LogoutFn>(logoutCallback, []);
   useEffect(authenticationEffect, [pendingAuthentication]);
-  const value = { isAuthenticated, login, isAuthenticating, authenticationError, token };
+  const value = { isAuthenticated, login, logout, isAuthenticating, authenticationError, token };
   log('render');
   return (
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
+
+  function logoutCallback(){
+    debugger;
+    setState({...initialState})
+  }
 
   function loginCallback(username?: string, password?: string): void {
     log('login');
