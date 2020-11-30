@@ -4,6 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { IonButton, IonContent, IonHeader, IonInput, IonLoading, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { AuthContext } from './AuthProvider';
 import { getLogger } from '../core';
+import { Plugins } from '@capacitor/core';
 
 const log = getLogger('Login');
 
@@ -16,10 +17,8 @@ export const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const { isAuthenticated, isAuthenticating, login, authenticationError } = useContext(AuthContext);
   const [state, setState] = useState<LoginState>({});
   const { username, password } = state;
-  debugger;
   const handleLogin = () => {
     log('handleLogin...');
-    debugger;
     login?.(username, password);
   };
   log('render');

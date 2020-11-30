@@ -4,6 +4,7 @@ import { getLogger } from '../core';
 import { PostProps } from './PostProps';
 import { createItem, getItems, newWebSocket, updateItem } from './postApi';
 import { AuthContext } from '../auth';
+import { Plugins } from '@capacitor/core';
 
 const log = getLogger('ItemProvider');
 
@@ -99,13 +100,31 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
         log('fetchItems started');
         dispatch({ type: FETCH_ITEMS_STARTED });
         const items = await getItems(token);
+        const {Storage} = Plugins;
+
         log('fetchItems succeeded');
         if (!canceled) {
+          debugger;
           dispatch({ type: FETCH_ITEMS_SUCCEEDED, payload: { items } });
+          await Storage.set({
+            key: 'items',
+            value: JSON.stringify(items)
+          });
         }
       } catch (error) {
-        log('fetchItems failed');
-        dispatch({ type: FETCH_ITEMS_FAILED, payload: { error } });
+        
+        const {Storage} = Plugins;
+        const itemsS = await Storage.get({key: 'items'});
+        debugger;
+        if(itemsS.value){
+          log('am gasit in local storege');
+          const parsedValue = JSON.parse(itemsS.value);
+          dispatch({ type: FETCH_ITEMS_SUCCEEDED, payload: { items: parsedValue } });
+        }else{
+          log('fetchItems failed');
+          dispatch({ type: FETCH_ITEMS_FAILED, payload: { error } });
+        }
+
       }
     }
   }
