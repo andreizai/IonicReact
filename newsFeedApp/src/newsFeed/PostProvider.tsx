@@ -5,10 +5,13 @@ import { PostProps } from './PostProps';
 import { createItem, getItems, newWebSocket, updateItem } from './postApi';
 import { AuthContext } from '../auth';
 import { Plugins } from '@capacitor/core';
+import Post from './Post';
 
 const log = getLogger('ItemProvider');
 
 type SaveItemFn = (item: PostProps) => Promise<any>;
+
+type GetNextFn = ($event: CustomEvent<void>, items?: PostProps[]) => Promise<any>;
 
 export interface ItemsState {
   items?: PostProps[],
@@ -16,7 +19,9 @@ export interface ItemsState {
   fetchingError?: Error | null,
   saving: boolean,
   savingError?: Error | null,
+  disableInfiniteScroll: boolean,
   saveItem?: SaveItemFn,
+  getNext?: GetNextFn
 }
 
 interface ActionProps {
@@ -25,6 +30,7 @@ interface ActionProps {
 }
 
 const initialState: ItemsState = {
+  disableInfiniteScroll: false,
   fetching: false,
   saving: false,
 };
@@ -35,10 +41,13 @@ const FETCH_ITEMS_FAILED = 'FETCH_ITEMS_FAILED';
 const SAVE_ITEM_STARTED = 'SAVE_ITEM_STARTED';
 const SAVE_ITEM_SUCCEEDED = 'SAVE_ITEM_SUCCEEDED';
 const SAVE_ITEM_FAILED = 'SAVE_ITEM_FAILED';
+const MORE_ITEMS = 'MORE_ITEMS';
 
 const reducer: (state: ItemsState, action: ActionProps) => ItemsState =
   (state, { type, payload }) => {
     switch (type) {
+      case MORE_ITEMS:
+        return { ...state, items: payload.items}
       case FETCH_ITEMS_STARTED:
         return { ...state, fetching: true, fetchingError: null };
       case FETCH_ITEMS_SUCCEEDED:
@@ -73,17 +82,36 @@ interface ItemProviderProps {
 export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
   const { token } = useContext(AuthContext);
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { items, fetching, fetchingError, saving, savingError } = state;
+  const { items, fetching, fetchingError, saving, savingError, disableInfiniteScroll } = state;
   useEffect(getItemsEffect, [token]);
   useEffect(wsEffect, [token]);
   const saveItem = useCallback<SaveItemFn>(saveItemCallback, [token]);
-  const value = { items, fetching, fetchingError, saving, savingError, saveItem };
+  const getNext = useCallback<GetNextFn>(getMoreItems, []);
+  const value = { items, fetching, fetchingError, saving, savingError, saveItem, getNext, disableInfiniteScroll };
   log('returns');
   return (
     <ItemContext.Provider value={value}>
       {children}
     </ItemContext.Provider>
   );
+
+  async function getMoreItems($event: CustomEvent<void>, items?: PostProps[]){
+    debugger;
+    let lista = []
+    for(var i=0; i<3; i++){
+      const post : PostProps = {
+        _id: "Craeted" + i,
+        title: "Tilut"+i,
+        date: new Date().toISOString(),
+        version: i,
+        edited: false,
+        text: "Exemplu TXT"
+      }
+      lista.push(post);
+    }
+    dispatch({type: MORE_ITEMS, payload: {items: items?.concat(lista)} });
+    ($event.target as HTMLIonInfiniteScrollElement).complete();
+  } 
 
   function getItemsEffect() {
     let canceled = false;
@@ -104,7 +132,6 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
 
         log('fetchItems succeeded');
         if (!canceled) {
-          debugger;
           dispatch({ type: FETCH_ITEMS_SUCCEEDED, payload: { items } });
           await Storage.set({
             key: 'items',
@@ -115,7 +142,6 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
         
         const {Storage} = Plugins;
         const itemsS = await Storage.get({key: 'items'});
-        debugger;
         if(itemsS.value){
           log('am gasit in local storege');
           const parsedValue = JSON.parse(itemsS.value);

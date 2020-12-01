@@ -7,6 +7,8 @@ import {
   IonFabButton,
   IonHeader,
   IonIcon,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   IonList, IonLoading,
   IonPage,
   IonTitle,
@@ -21,10 +23,9 @@ import { AuthContext } from '../auth';
 const log = getLogger('ItemList');
 
 const ItemList: React.FC<RouteComponentProps> = ({ history }) => {
-  const { items, fetching, fetchingError } = useContext(ItemContext);
+  const { items, fetching, fetchingError, getNext, disableInfiniteScroll } = useContext(ItemContext);
   const { logout } = useContext(AuthContext);
   const handleLogout = () => {
-    debugger;
     logout?.();
   }
   log('render');
@@ -53,6 +54,12 @@ const ItemList: React.FC<RouteComponentProps> = ({ history }) => {
             <IonIcon icon={add}/>
           </IonFabButton>
         </IonFab>
+        <IonInfiniteScroll threshold="100px" disabled={disableInfiniteScroll}
+                           onIonInfinite={(e: CustomEvent<void>) => getNext?.(e, items)}>
+          <IonInfiniteScrollContent
+            loadingText="Loading more Posts">
+          </IonInfiniteScrollContent>
+        </IonInfiniteScroll>
       </IonContent>
     </IonPage>
   );

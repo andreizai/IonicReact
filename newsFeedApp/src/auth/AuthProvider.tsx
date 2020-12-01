@@ -58,6 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { isAuthenticated, isAuthenticating, authenticationError, pendingAuthentication, token } = state;
   const login = useCallback<LoginFn>(loginCallback, []);
   const logout = useCallback<LogoutFn>(logoutCallback, []);
+  useEffect(authenticationEffect, [pendingAuthentication]);
   const value = { isAuthenticated, login, logout, isAuthenticating, authenticationError, token };
   log('render');
   return (
@@ -67,7 +68,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 
   function logoutCallback(){
-    debugger;
     setState({
       ...initialState,
       username: undefined,
@@ -89,7 +89,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       username,
       password
     });
-    authenticationEffect();
+    
   }
 
   function authenticationEffect() {
@@ -100,7 +100,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     async function authenticate() {
-      debugger;
       if (!pendingAuthentication) {
         log('authenticate, !pendingAuthentication, return');
         return;
@@ -125,7 +124,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           isAuthenticated: true,
           isAuthenticating: false,
         });
-        debugger;
         await Storage.set({
           key: 'AuthState',
           value: JSON.stringify({
